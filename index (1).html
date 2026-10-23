@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AURA GRAPHIC — Present By Deb</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<style>:root{--bg:#0B0F17;--ac:#00F2FE;--card:#121926}html{scroll-behavior:smooth}body{background:var(--bg);color:#fff;font-family:system-ui,-apple-system,sans-serif}
+.ac{color:var(--ac)}.btn{background:var(--ac);color:var(--bg);font-weight:700;padding:.75rem 1.5rem;border-radius:.5rem;display:inline-block}
+.card{background:var(--card);border:1px solid #1e2838;border-radius:.75rem}input,textarea{background:var(--card);border:1px solid #1e2838;border-radius:.5rem;padding:.75rem;width:100%;color:#fff}
+input:focus,textarea:focus,a:focus-visible,button:focus-visible{outline:2px solid var(--ac)}.chip{border:1px solid #1e2838;padding:.35rem .9rem;border-radius:999px}.chip.on{background:var(--ac);color:var(--bg)}
+h1{font-size:clamp(2.5rem,8vw,5.5rem);line-height:1;font-weight:800;letter-spacing:-.03em}section{padding:5rem 1.25rem;max-width:72rem;margin:auto}</style></head><body>
+<header class="sticky top-0 z-10 border-b border-[#1e2838]" style="background:#0B0F17ee;backdrop-filter:blur(8px)"><div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
+<a href="#" class="flex items-center gap-2"><img src="logo.png" alt="" class="h-9" onerror="this.remove()"><b>AURA GRAPHIC</b></a>
+<nav class="hidden md:flex gap-6 text-sm text-gray-300"><a href="#about">About</a><a href="#services">Services</a><a href="#work">Work</a><a href="#reviews">Reviews</a><a href="#contact">Contact</a></nav></div></header>
+<section style="padding-top:7rem;padding-bottom:7rem"><p class="ac mb-4">Present by Deb</p><h1 id="hero_title" class="max-w-4xl"></h1><p id="hero_sub" class="mt-6 text-lg text-gray-300 max-w-xl"></p><a href="#work" class="btn mt-8">See the work</a></section>
+<section id="about"><h2 class="text-3xl font-bold mb-4">About Deb</h2><p id="about_t" class="text-gray-300 max-w-2xl whitespace-pre-line"></p></section>
+<section id="services"><h2 class="text-3xl font-bold mb-8">Services</h2><div id="svc" class="grid md:grid-cols-3 gap-4"></div></section>
+<section id="work"><h2 class="text-3xl font-bold mb-4">Portfolio</h2><div id="cats" class="flex flex-wrap gap-2 mb-6"></div><div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div></section>
+<section id="reviews"><h2 class="text-3xl font-bold mb-8">Testimonials</h2><div id="rev" class="grid md:grid-cols-2 gap-4"></div></section>
+<section id="contact"><h2 class="text-3xl font-bold mb-4">Contact</h2><div class="grid md:grid-cols-2 gap-8"><div class="text-gray-300 space-y-1"><p id="c_email"></p><p id="c_phone"></p><p id="c_loc"></p></div>
+<form id="f" class="space-y-3"><input name="name" placeholder="Your name" required><input name="email" type="email" placeholder="Your email" required><textarea name="message" rows="4" placeholder="Tell me about your project" required></textarea><button class="btn">Send message</button><p id="fm" class="text-sm"></p></form></div></section>
+<footer class="text-center text-sm text-gray-500 py-8">© <span id="y"></span> AURA GRAPHIC · <a href="admin.html">Owner login</a></footer>
+<script>
+const sb=supabase.createClient(CFG.URL,CFG.KEY),$=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const L=t=>(t||'').split('\n').map(l=>l.split('|').map(x=>x.trim())).filter(a=>a[0]);
+$('y').textContent=new Date().getFullYear();
+(async()=>{let C={...DEF};
+try{const{data}=await sb.from('site_content').select('*');(data||[]).forEach(r=>C[r.key]=r.value)}catch(e){}
+$('hero_title').textContent=C.hero_title;$('hero_sub').textContent=C.hero_sub;$('about_t').textContent=C.about;
+$('c_email').innerHTML='Email: <a class="ac" href="mailto:'+esc(C.email)+'">'+esc(C.email)+'</a>';$('c_phone').textContent='Phone: '+C.phone;$('c_loc').textContent='Location: '+C.location;
+$('svc').innerHTML=L(C.services).map(a=>`<div class="card p-6"><h3 class="font-bold ac mb-2">${esc(a[0])}</h3><p class="text-gray-300 text-sm">${esc(a[1])}</p></div>`).join('');
+$('rev').innerHTML=L(C.testimonials).map(a=>`<blockquote class="card p-6"><p class="text-gray-200">“${esc(a[1])}”</p><footer class="ac mt-3 text-sm">${esc(a[0])}</footer></blockquote>`).join('');
+let P=[];try{P=(await sb.from('projects').select('*').order('created_at',{ascending:false})).data||[]}catch(e){}
+const draw=cat=>{const l=cat?P.filter(p=>p.category===cat):P;
+$('grid').innerHTML=l.length?l.map(p=>`<a href="${esc(p.image_url)}" target="_blank" rel="noopener" class="card overflow-hidden block"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" loading="lazy" class="w-full aspect-[4/3] object-cover"><div class="p-4"><h3 class="font-bold">${esc(p.title)}</h3><p class="ac text-xs">${esc(p.category)}</p><p class="text-gray-400 text-sm mt-1">${esc(p.description)}</p></div></a>`).join(''):'<p class="text-gray-400">New work is coming soon.</p>'};
+const cats=[...new Set(P.map(p=>p.category).filter(Boolean))];
+$('cats').innerHTML=['All',...cats].map((c,i)=>`<button class="chip ${i?'':'on'}" data-c="${i?esc(c):''}">${esc(c)}</button>`).join('');
+$('cats').onclick=e=>{const b=e.target.closest('button');if(!b)return;[...$('cats').children].forEach(x=>x.classList.remove('on'));b.classList.add('on');draw(b.dataset.c)};draw('')})();
+$('f').onsubmit=async e=>{e.preventDefault();const f=e.target,{error}=await sb.from('messages').insert({name:f.name.value,email:f.email.value,message:f.message.value});
+$('fm').textContent=error?'Could not send. Please email me directly.':'Thanks! I will reply soon.';if(!error)f.reset()};
+</script></body></html>
